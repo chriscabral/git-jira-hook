@@ -59,6 +59,10 @@ import urllib2
 import ConfigParser
 import string
 
+# Soappy
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 def main():
     global myname, loglevel
@@ -242,7 +246,7 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
 
     if refed_issue_count + fixed_issue_count == 0:
         if commit_id != None:
-            logging.error("Failed to find any referenced Jira issue\n\tin commit message for commit %s", commit_id)
+            logging.error("Failed to find any referenced Jira issue in commit message for %s", commit_id)
         else:
             logging.info("Didn't find any referenced Jira issue in commit message(s)")
     return 0
