@@ -150,7 +150,7 @@ def handle_post_commit():
 
     jira_url = get_jira_url()
     if jira_url == None:
-        return
+        return -1
 
     commit_id = git_get_last_commit_id()
     commit_text = git_get_commit_msg(commit_id) 
@@ -237,23 +237,15 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
     refed_issue_count = call_pattern_hook(commit_text, "refs", \
             jira_find_issue, jira_soap_client, jira_auth, None)
 
-    if refed_issue_count == -1:
-        return -1
-
     fixed_issue_count = call_pattern_hook(commit_text, "fixes", \
             jira_find_issue, jira_soap_client, jira_auth, None)
-
-    if fixed_issue_count == -1:
-        return -1
-
 
     if refed_issue_count + fixed_issue_count == 0:
         if commit_id != None:
             logging.error("Failed to find any referenced Jira issue\n\tin commit message for commit %s", commit_id)
+            return -1
         else:
-            logging.error("Failed to find any referenced Jira issue in commit message(s)")
-        return -1
-
+            logging.info("Didn't find any referenced Jira issue in commit message(s)")
     return 0
 
 
