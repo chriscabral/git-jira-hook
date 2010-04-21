@@ -446,11 +446,15 @@ def jira_add_comment_to_issue(issuekey, jira_soap_client, jira_auth, jira_text):
 
 
 # TODO: Not fully implemented yet!
-def jira_add_comment_to_and_fix_issue(issuekey, jira_soap_client, jira_text):
-    return jira_add_comment_to_issue(issuekey, jira_soap_client, jira_text)
-
-
-
+def jira_add_comment_to_and_fix_issue(issuekey, jira_soap_client, jira_auth, jira_text):
+    try:
+        jira_soap_client.progressWorkflowAction(jira_auth, issuekey, '281', [])
+        logging.debug("Fixed issue '%s' in Jira", issuekey)
+    
+    except Exception, e:
+        logging.error("Error fixing issue '%s' in Jira", issuekey)
+        logging.debug(e)
+        return -1
 
 #-----------------------------------------------------------------------------
 # Miscellaneous Jira related utility functions
