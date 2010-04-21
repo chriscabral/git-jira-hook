@@ -337,7 +337,9 @@ def jira_login(jira_url, soap_client):
     if auth != None and auth != "": 
         auth = jira_implicit_login(soap_client, auth) 
     else:
-        auth = None
+        username = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "username")
+        username = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "password")
+        auth = soap_client.login(username, password)
 
     if auth == None:
         save_jira_cached_auth(jira_url, "")
