@@ -39,7 +39,7 @@ myname = os.path.basename(sys.argv[0])
 
 # Change this value to "CRITICAL/ERROR/WARNING/INFO/DEBUG/NOTSET" 
 # as appropriate. 
-# loglevel=logging.INFO
+loglevel=logging.INFO
 # loglevel=logging.DEBUG
 
 
@@ -243,7 +243,6 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
     if refed_issue_count + fixed_issue_count == 0:
         if commit_id != None:
             logging.error("Failed to find any referenced Jira issue\n\tin commit message for commit %s", commit_id)
-            return -1
         else:
             logging.info("Didn't find any referenced Jira issue in commit message(s)")
     return 0
