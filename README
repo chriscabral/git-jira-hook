@@ -146,7 +146,7 @@ is done to it, the  installed hook will kick in and validate the
 commit message, followed by update of the Jira issue.
 
 
-3.1 Installtion for "private" repository
+3.1 Installation for "private" repository
 ----------------------------------------
 (i)   Copy this script to <your-git-repo-GIT-dir>/hooks/commit-msg 
       and mark it executable
@@ -242,15 +242,11 @@ issues exist.
 And then, at a later time, when you do "git push" to push your changes
 upstream, the final validation and Jira issue update will be done.
 
-NOTE: The "fixes" feature does not work yet :<
-
 
 5. Known Limitations
 ====================
 
 I am working to fix all of these issues:
-   * The "fixes" text does not yet mark the Jira issue as resolved.
-
    * The error messages  are a bit confusing (cluttered with too much detail).
 
 DISCLAIMER: This is my very first attempt at writing python code, so it is not 
@@ -287,7 +283,7 @@ This script was inspired by the following:
 
 8. References
 =============
-[1] Git, an source configuratiin management ("SCM") tool
+[1] Git, an source configuration management ("SCM") tool
     http://git-scm.com/
 
 [2] Jira,  a bug tracking system

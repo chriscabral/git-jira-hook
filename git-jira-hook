@@ -447,7 +447,6 @@ def jira_add_comment_to_issue(issuekey, jira_soap_client, jira_auth, jira_text):
         return -1
 
 
-# TODO: Not fully implemented yet!
 def jira_add_comment_to_and_fix_issue(issuekey, jira_soap_client, jira_auth, jira_text):
     try:
         jira_soap_client.progressWorkflowAction(jira_auth, issuekey, '281', [])
