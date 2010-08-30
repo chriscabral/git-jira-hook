@@ -48,25 +48,21 @@ import subprocess
 import re
 import collections
 import getpass
-import SOAPpy
 import traceback
 import pprint
 import pdb
 import stat
 import cookielib
 import subprocess
-import urllib2
 import ConfigParser
 import string
-
-# Soappy
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+from suds.client import Client
 
 
 def main():
     global myname, loglevel
     logging.basicConfig(level=loglevel, format=myname + ":%(levelname)s: %(message)s")
+    logging.getLogger('suds').setLevel(logging.INFO)
 
     if myname == "commit-msg" :
         return handle_commit_msg()
@@ -260,7 +256,6 @@ def jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text):
     else:
         commit_text_with_url = commit_text
 
-
     call_pattern_hook(commit_text, 'refs', jira_add_comment_to_issue, \
                                 jira_soap_client, jira_auth, commit_text_with_url)
     call_pattern_hook(commit_text, 'fixes', jira_add_comment_to_and_fix_issue, \
@@ -308,8 +303,7 @@ def call_pattern_hook(text, pattern, hookfn, jira_soap_client, jira_auth, jira_t
 def jira_start_session(jira_url):
     jira_url = jira_url.rstrip("/")
     try:
-        handle = urllib2.urlopen(jira_url + "/rpc/soap/jirasoapservice-v2?wsdl")
-        soap_client = SOAPpy.WSDL.Proxy(handle)
+        soap_client = Client(jira_url + "/rpc/soap/jirasoapservice-v2?wsdl")
         # print "self.soap_client set", self.soap_client
 
     except KeyboardInterrupt:
@@ -338,8 +332,8 @@ def jira_login(jira_url, soap_client):
         auth = jira_implicit_login(soap_client, auth) 
     else:
         username = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "username")
-        username = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "password")
-        auth = soap_client.login(username, password)
+        password = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "password")
+        auth = soap_client.service.login(username, password)
 
     if auth == None:
         save_jira_cached_auth(jira_url, "")
@@ -355,7 +349,7 @@ def jira_implicit_login(soap_client, auth):
 
     # test jira to see if auth is valid
     try:
-        jira_types = soap_client.getIssueTypes(auth)
+        jira_types = soap_client.service.getIssueTypes(auth)
         return auth
     except KeyboardInterrupt:
         logging.info("... interrupted")
@@ -390,10 +384,10 @@ def jira_explicit_login(soap_client):
         # print "abc"
         # print "self.soap_client login...%s " % username + password
         try:
-            auth = soap_client.login(username, password) 
+            auth = soap_client.service.login(username, password) 
 
             try:
-                jira_types = soap_client.getIssueTypes(auth)
+                jira_types = soap_client.service.getIssueTypes(auth)
                 return auth
 
             except KeyboardInterrupt:
@@ -422,7 +416,7 @@ def jira_explicit_login(soap_client):
 
 def jira_find_issue(issuekey, jira_soap_client, jira_auth, jira_text):
     try:
-        issue = jira_soap_client.getIssue(jira_auth, issuekey)
+        issue = jira_soap_client.service.getIssue(jira_auth, issuekey)
         logging.debug("Found issue '%s' in Jira: (%s)",  
                     issuekey, issue["summary"])
         return 0
@@ -438,7 +432,7 @@ def jira_find_issue(issuekey, jira_soap_client, jira_auth, jira_text):
 
 def jira_add_comment_to_issue(issuekey, jira_soap_client, jira_auth, jira_text):
     try:
-        jira_soap_client.addComment(jira_auth, issuekey, {"body":jira_text})
+        jira_soap_client.service.addComment(jira_auth, issuekey, {"body":jira_text})
         logging.debug("Added to issue '%s' in Jira:\n%s", issuekey, jira_text)
 
     except Exception, e:
@@ -449,7 +443,7 @@ def jira_add_comment_to_issue(issuekey, jira_soap_client, jira_auth, jira_text):
 
 def jira_add_comment_to_and_fix_issue(issuekey, jira_soap_client, jira_auth, jira_text):
     try:
-        jira_soap_client.progressWorkflowAction(jira_auth, issuekey, '281', [])
+        jira_soap_client.service.progressWorkflowAction(jira_auth, issuekey, '281', [])
         logging.debug("Fixed issue '%s' in Jira", issuekey)
     
     except Exception, e:
@@ -469,7 +463,7 @@ def get_jira_url():
     return jira_url
 
 def get_jira_cached_auth(jira_url):
-    return get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "auth")
+    return get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "auth", silent=True)
 
 def save_jira_cached_auth(jira_url, auth):
     return save_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "auth", auth)
@@ -481,12 +475,14 @@ def save_jira_cached_auth(jira_url, auth):
 def get_gitweb_url():
     return git_config_get("gitweb.url")
 
-def get_cfg_value(cfg_file_name, section, key):
+def get_cfg_value(cfg_file_name, section, key, silent=False):
     try:
         cfg = ConfigParser.ConfigParser()
         cfg.read(cfg_file_name)
         value = cfg.get(section, key)
     except:
+        if not silent:
+            logging.warn("Error reading %s looking for [%s] %s" % (cfg_file_name, section, key), exc_info=True)
         return None
     return value
     
