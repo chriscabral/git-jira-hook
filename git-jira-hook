@@ -250,6 +250,11 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
 
 def jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text):
     gitweb_url = get_gitweb_url()
+    gitweb_branch_url = get_gitweb_branch_url()
+    if gitweb_branch_url:
+        branch = git_get_curr_branchname()
+        commit_text = commit_text.replace(commit_id, commit_id + ' on branch [%s|%s]'
+                                          % (branch, gitweb_branch_url + branch))
     if gitweb_url != None or gitweb_url != "":
         commit_text_with_url = commit_text.replace(commit_id, \
             "[" + commit_id + "|" + gitweb_url + commit_id + "]")
@@ -474,6 +479,9 @@ def save_jira_cached_auth(jira_url, auth):
 #
 def get_gitweb_url():
     return git_config_get("gitweb.url")
+
+def get_gitweb_branch_url():
+    return git_config_get("gitweb.branchurl")
 
 def get_cfg_value(cfg_file_name, section, key, silent=False):
     try:

@@ -199,12 +199,13 @@ values to use for your "jira.url".
        chmod +x upstream-project.git/hooks/update
        chmod +x upstream-project.git/hooks/post-receive
 
-(ii) Set the following git config values (Note: gitweb.url config is 
-      recommended, but Optional): "jira.url" "gitweb.url"
+(ii) Set the following git config values (Note: gitweb config is 
+      recommended, but Optional): "jira.url" "gitweb.url" "gitweb.branch_url"
       Example:
       cd upstream.git
       git config jira.url "http://jira.mycompany.com"
       git config gitweb.url "http://git.mycompany.com/gitweb.cgi/p=upstream-project.git;a=commit;h="
+      git config gitweb.branch_url "http://git.mycompany.com/gitweb.cgi/p=upstream-project.git;a=shortlog;h=refs/heads/"
 
 (iii) Create ~/.jirarc with JIRA credentials.
       Example:
