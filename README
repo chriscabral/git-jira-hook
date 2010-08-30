@@ -91,9 +91,7 @@ following comments will be added:
     refs #SW-189, refs #HW-278 fixes #FW-702
 
 In addition, 
-    * the issue "FW=702" will be marked as resolved. (NOTE: 
-      this "resolved" part does not work yet. See "Known 
-      Limitations" section.)
+    * the issue "FW=702" will be marked as resolved.
 
 1.3 Wait! there's  more
 -----------------------
