@@ -153,10 +153,17 @@ commit message, followed by update of the Jira issue.
        chmod +x joyjit-project/.git/hooks/commit-msg
 
 
-(iii) Set the following git config value 
+(ii) Set the following git config value 
       Example:
        cd joyjit-repo
        git config jira.url "http://jira.mycompany.com"
+
+(iii) Create ~/.jirarc with JIRA credentials.
+      Example:
+         [http://jira.mycompany.com]
+         username=myusername
+         password=mypassword
+      This file will also store a temporary auth token.
 
 (iv)  [Optional] If you wish jira integration to be triggered only
       on certain branches, add a comma-separated list of 
@@ -192,12 +199,19 @@ values to use for your "jira.url".
        chmod +x upstream-project.git/hooks/update
        chmod +x upstream-project.git/hooks/post-receive
 
-(iii) Set the following git config values (Note: gitweb.url config is 
+(ii) Set the following git config values (Note: gitweb.url config is 
       recommended, but Optional): "jira.url" "gitweb.url"
       Example:
       cd upstream.git
       git config jira.url "http://jira.mycompany.com"
       git config gitweb.url "http://git.mycompany.com/gitweb.cgi/p=upstream-project.git;a=commit;h="
+
+(iii) Create ~/.jirarc with JIRA credentials.
+      Example:
+         [http://jira.mycompany.com]
+         username=myusername
+         password=mypassword
+      This file will also store a temporary auth token.
 
 (iv)  [Optional] If you wish jira integration to be triggered only
       on certain branches, add a comma-separated list of 
