@@ -323,19 +323,19 @@ def jira_start_session(jira_url):
 def jira_login(jira_url, soap_client):
 
     auth = get_jira_cached_auth(jira_url)
-    if auth != None and auth != "": 
-        auth = jira_implicit_login(soap_client, auth) 
-    else:
+    if auth: 
+        auth = jira_implicit_login(soap_client, auth)
+    
+    if not auth:
         username = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "username")
         password = get_cfg_value(os.environ['HOME'] + "/.jirarc", jira_url, "password")
         auth = soap_client.service.login(username, password)
-
-    if auth == None:
+    
+    if not auth:
         save_jira_cached_auth(jira_url, "")
         auth = jira_explicit_login(soap_client)
-
-
-    if auth != None:
+    
+    if auth:
         save_jira_cached_auth(jira_url, auth)
 
     return auth
