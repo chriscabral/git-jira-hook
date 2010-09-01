@@ -144,7 +144,7 @@ def handle_post_commit():
 
     (jira_soap_client, jira_auth) = jira_start_session(jira_url)
 
-    jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text)
+    jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, git_get_curr_branchname())
     return 
 
 
@@ -214,7 +214,7 @@ def handle_post_receive():
 
     for commit_id in commit_id_array:
         commit_text = git_get_commit_msg(commit_id)
-        jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text)
+        jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, git_get_branchname_from_ref(ref))
 
     return 0
         
@@ -235,11 +235,10 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
     return 0
 
 
-def jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text):
+def jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, branch):
     gitweb_url = get_gitweb_url()
     gitweb_branch_url = get_gitweb_branch_url()
     if gitweb_branch_url:
-        branch = git_get_curr_branchname()
         commit_text = commit_text.replace(commit_id, commit_id + ' on branch [%s|%s]'
                                           % (branch, gitweb_branch_url + branch))
     if gitweb_url != None or gitweb_url != "":
