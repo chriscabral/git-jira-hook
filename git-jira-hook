@@ -341,7 +341,17 @@ def jira_implicit_login(soap_client, auth):
 
     # test jira to see if auth is valid
     try:
-        jira_types = soap_client.service.getIssueTypes(auth)
+        # ignore suds errors
+        if loglevel != logging.DEBUG:
+            prev_suds_log_level = logging.getLogger('suds.client').getEffectiveLevel()
+            logging.getLogger('suds.client').setLevel(logging.CRITICAL)
+        
+        jira_types = soap_client.service.getIssueTypes(auth) # this logs an ERROR and raises an exception
+        
+        if loglevel != logging.DEBUG:
+            logging.getLogger('suds.client').setLevel(prev_suds_log_level)
+        
+        # we made it ok
         return auth
     except KeyboardInterrupt:
         log.info("... interrupted")
