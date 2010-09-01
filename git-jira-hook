@@ -32,8 +32,6 @@ import logging
 import sys
 import os
 
-myname = os.path.basename(sys.argv[0])
-
 # Change this value to "CRITICAL/ERROR/WARNING/INFO/DEBUG/NOTSET" 
 # as appropriate. 
 loglevel=logging.INFO
@@ -50,25 +48,26 @@ from suds.client import Client
 
 
 def main():
-    global myname, loglevel
+    global loglevel
+
+    myname = os.path.basename(sys.argv[0])
+    if len(sys.argv) > 1 and sys.argv[1].startswith('--action='):
+        action_arg = sys.argv.pop(1)
+        myname = action_arg.split('=')[1]
+    
     logging.basicConfig(level=loglevel, format=myname + ":%(levelname)s: %(message)s")
     logging.getLogger('suds').setLevel(logging.INFO)
-
+    
     if myname == "commit-msg" :
         return handle_commit_msg()
-
     elif myname == "post-commit" :
         return handle_post_commit()
-
     elif myname == "update":
         return handle_update()
-
     elif myname == "post-receive":
         return handle_post_receive()
-
-
     else:
-        logging.error("invoked as '%s'. Need to be invoked as commit-msg, post-commit, update or post-receive" , myname)
+        logging.error("invoked as '%s'. Need to be invoked as commit-msg, post-commit, update or post-receive.  Or, add first arg --action=post-receive (for example) before regular git hook args" , myname)
         return -1
  
 
