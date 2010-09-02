@@ -272,9 +272,14 @@ def call_pattern_hook(text, pattern, hookfn, jira_soap_client, jira_auth, jira_t
     
     iterator = magic.finditer(text)
     issue_count = 0
-    for match in iterator: 
+    seen_issues = set()
+    for match in iterator:
         issuekey = match.group(1)
         # print "issuekey found=", issuekey
+        if issuekey in seen_issues:
+            continue
+        else:
+            seen_issues.add(issuekey)
         ret = hookfn(issuekey, jira_soap_client, jira_auth, jira_text)
         if ret != 0:
             return -1
