@@ -209,7 +209,16 @@ def handle_post_receive():
     if jira_soap_client == None or jira_auth == None:
         return -1
 
-    commit_id_array = git_get_array_of_commit_ids(old_commit_id, new_commit_id)
+    zeros = '0000000000000000000000000000000000000000'
+    if new_commit_id == zeros:
+        log.debug('branch at %s deleted' % old_commit_id)
+        return 0
+    
+    if old_commit_id == zeros:
+        log.debug('new branch at %s' % new_commit_id)
+        commit_id_array = [new_commit_id]
+    else:
+        commit_id_array = git_get_array_of_commit_ids(old_commit_id, new_commit_id)
 
     if commit_id_array == None or len(commit_id_array)==0:
         log.error("no commit ids!")
