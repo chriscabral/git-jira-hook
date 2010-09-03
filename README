@@ -185,19 +185,16 @@ values to use for your "jira.url".
 
 3.2 Installation for "upstream" repository
 ------------------------------------------
-(i)   Copy this script to 
-      <upstream-repo-GIT-dir>/hooks/{commit-msg|post-commit|update|post-receive} 
+(i)   Copy or symlink this script to 
+      <upstream-repo-GIT-dir>/hooks/post-receive
       and mark it executable
 
       Example:
-       cp git-jira-hook upstream-project.git/hooks/commit-msg
-       cp git-jira-hook upstream-project.git/hooks/post-commit
-       cp git-jira-hook upstream-project.git/hooks/update
        cp git-jira-hook upstream-project.git/hooks/post-receive
-       chmod +x upstream-project.git/hooks/commit-msg
-       chmod +x upstream-project.git/hooks/post-commit
-       chmod +x upstream-project.git/hooks/update
        chmod +x upstream-project.git/hooks/post-receive
+       
+      Optional: install it as an 'update' hook (only does validation) and
+      'commit-msg' and 'post-commit' (if commits happen directly on this upstream repo)
 
 (ii) Set the following git config values (Note: gitweb config is 
       recommended, but Optional): "jira.url" "gitweb.url" "gitweb.branch_url"
