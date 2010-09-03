@@ -53,6 +53,9 @@ if len(sys.argv) > 1 and sys.argv[1].startswith('--action='):
 
 logging.basicConfig(level=loglevel, format="%(levelname)s %(name)s %(message)s")
 logging.getLogger('suds').setLevel(logging.INFO)
+if loglevel != logging.DEBUG:
+    # suds prints out a lot of ERRORs that we don't need to see, since it raises an Exception also
+    logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 log = logging.getLogger(myname)
 
 def main():
@@ -345,15 +348,7 @@ def jira_implicit_login(soap_client, auth):
 
     # test jira to see if auth is valid
     try:
-        # ignore suds errors
-        if loglevel != logging.DEBUG:
-            prev_suds_log_level = logging.getLogger('suds.client').getEffectiveLevel()
-            logging.getLogger('suds.client').setLevel(logging.CRITICAL)
-        
-        jira_types = soap_client.service.getIssueTypes(auth) # this logs an ERROR and raises an exception
-        
-        if loglevel != logging.DEBUG:
-            logging.getLogger('suds.client').setLevel(prev_suds_log_level)
+        jira_types = soap_client.service.getIssueTypes(auth)
         
         # we made it ok
         return auth
