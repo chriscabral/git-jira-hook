@@ -278,7 +278,7 @@ def jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, branch
 def call_pattern_hook(text, pattern, hookfn, jira_soap_client, jira_auth, jira_text):
     if not callable(hookfn):
         log.error("Hook function is not callable");
-        exit -1
+        exit(-1)
 
     magic = re.compile(pattern + '(\w\w*-\d\d*)')
     
@@ -594,7 +594,7 @@ def git_get_branchname_from_ref(ref):
     # "refs/heads/<branchname>"
     if string.find(ref, "refs/heads") != 0:
         log.error("Invalid ref '%s'", ref)
-        exit -1
+        exit(-1)
 
     return string.strip(ref[len("refs/heads/"):])
 
