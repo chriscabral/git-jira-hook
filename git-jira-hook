@@ -559,6 +559,9 @@ def get_shell_cmd_output(cmd):
 # Return False if we should not be enabled
 def enabled_on_branch(current_branchname):
     log.debug("Test if '%s' is enabled...", current_branchname)
+    if current_branchname is None:
+        # e.g. a tag
+        return False
     branchstr = git_config_get("git-jira-hook.branches")
     if branchstr == None or string.strip(branchstr) == "":
         log.debug("All branches enabled")
@@ -592,7 +595,9 @@ def git_get_curr_branchname():
 # to a remote repo), parse out the branch name
 def git_get_branchname_from_ref(ref):
     # "refs/heads/<branchname>"
-    if string.find(ref, "refs/heads") != 0:
+    if ref.startswith("refs/tags/"):
+        return None
+    elif not ref.startswith("refs/heads/"):
         log.error("Invalid ref '%s'", ref)
         exit(-1)
 
