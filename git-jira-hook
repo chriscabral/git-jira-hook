@@ -250,19 +250,21 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
 def jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, branch):
     gitweb_url = get_gitweb_url()
     gitweb_branch_url = get_gitweb_branch_url()
+    
+    # commit_text is git's pretty (medium) format
+    commit_msg_only = ''.join(commit_text.splitlines()[4:])
+    jira_text = commit_text
     if gitweb_branch_url:
-        commit_text = commit_text.replace(commit_id, commit_id + ' on branch [%s|%s]'
+        jira_text = jira_text.replace(commit_id, commit_id + ' on branch [%s|%s]'
                                           % (branch, gitweb_branch_url + branch))
     if gitweb_url != None or gitweb_url != "":
-        commit_text_with_url = commit_text.replace(commit_id, \
+        jira_text = jira_text.replace(commit_id, \
             "[" + commit_id + "|" + gitweb_url + commit_id + "]")
-    else:
-        commit_text_with_url = commit_text
 
-    call_pattern_hook(commit_text, '', jira_add_comment_to_issue, \
-                                jira_soap_client, jira_auth, commit_text_with_url)
-    call_pattern_hook(commit_text, 'fixes ', jira_add_comment_to_and_fix_issue, \
-                                jira_soap_client, jira_auth, commit_text_with_url)
+    call_pattern_hook(commit_msg_only, '', jira_add_comment_to_issue, \
+                                jira_soap_client, jira_auth, jira_text)
+    call_pattern_hook(commit_msg_only, 'fixes ', jira_add_comment_to_and_fix_issue, \
+                                jira_soap_client, jira_auth, jira_text)
     return
     
 
