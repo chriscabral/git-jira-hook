@@ -197,7 +197,8 @@ def handle_post_receive():
         log.error("post-receive hook stdin is incorrect '%s'", buf)
         return -1
 
-    if not enabled_on_branch(git_get_branchname_from_ref(ref)):
+    branch = git_get_branchname_from_ref(ref)
+    if not enabled_on_branch(branch):
         return 0
 
 
@@ -213,7 +214,7 @@ def handle_post_receive():
     if new_commit_id == zeros:
         log.debug('branch at %s deleted' % old_commit_id)
         return 0
-    
+   
     if old_commit_id == zeros:
         log.debug('new branch at %s' % new_commit_id)
         commit_id_array = [new_commit_id]
@@ -225,11 +226,15 @@ def handle_post_receive():
         return -1
 
     for commit_id in commit_id_array:
-        commit_text = git_get_commit_msg(commit_id)
-        jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, git_get_branchname_from_ref(ref))
+        branches = git_get_branches_with_commit(commit_id)
+        branches.remove(branch)
+        if len(branches) == 0:
+            commit_text = git_get_commit_msg(commit_id)
+            jira_add_comment(jira_soap_client, jira_auth, commit_id, commit_text, branch)
+        else:
+            log.info('Not recording %s, its already recorded for branches: %s' % (commit_id, branches))
 
-    return 0
-        
+    return 0        
 
 
 def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=None):
@@ -630,6 +635,9 @@ def git_get_array_of_commit_ids(start_id, end_id):
     commit_id_array = string.split(output, '\n')
     return commit_id_array
 
+def git_get_branches_with_commit(commit_id):
+    output = get_shell_cmd_output("git branch --contains %s" % commit_id)
+    return [b.replace('* ', '').strip() for b in output.split('\n')]
     
 #----------------------------------------------------------------------------
 # python script entry point. Dispatches main()
