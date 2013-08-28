@@ -434,6 +434,10 @@ def jira_explicit_login(soap_client):
 def jira_find_issue(issuekey, jira_soap_client, jira_auth, jira_text):
     try:
         issue = jira_soap_client.service.getIssue(jira_auth, issuekey)
+
+        if(issue["assignee"] not in git_config_get("user.email")):
+            raise Exception(("Issue '%s', does not belong to you, it belongs to %s", issuekey, issue["assignee"]))
+
         log.debug("Found issue '%s' in Jira: (%s)",  
                     issuekey, issue["summary"])
         return 0
