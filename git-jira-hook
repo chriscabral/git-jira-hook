@@ -32,11 +32,7 @@ import logging
 import sys
 import os
 
-# Change this value to "CRITICAL/ERROR/WARNING/INFO/DEBUG/NOTSET" 
-# as appropriate. 
 loglevel=logging.INFO
-# loglevel=logging.DEBUG
-
 
 import subprocess
 import re
@@ -249,6 +245,9 @@ def validate_commit_text(jira_soap_client, jira_auth, commit_text, commit_id=Non
             log.error("Failed to find any referenced Jira issue in commit message for %s", commit_id)
         else:
             log.info("Didn't find any referenced Jira issue in commit message(s)")
+    if refed_issue_count < 0 or fixed_issue_count < 0:
+        log.error("You must own the issue you are commiting against")
+        return -1
     return 0
 
 
@@ -436,7 +435,8 @@ def jira_find_issue(issuekey, jira_soap_client, jira_auth, jira_text):
         issue = jira_soap_client.service.getIssue(jira_auth, issuekey)
 
         if(issue["assignee"] not in git_config_get("user.email")):
-            raise Exception(("Issue '%s', does not belong to you, it belongs to %s", issuekey, issue["assignee"]))
+            log.error("Issue '%s', does not belong to you, it belongs to %s" % (issuekey, issue["assignee"]))
+            return -1
 
         log.debug("Found issue '%s' in Jira: (%s)",  
                     issuekey, issue["summary"])
@@ -648,3 +648,4 @@ def git_get_branches_with_commit(commit_id):
 if __name__ == "__main__":
   exit (main())
     
+
